@@ -9,8 +9,12 @@ export default {
     commonjs(),
     babel({
       babelrc: false,
-      presets: [['es2015', { modules: false }]],
-      plugins: ['transform-runtime'],
+      presets: [['es2015', { modules: false, loose: true }]],
+      plugins: [['transform-runtime',{
+        "helpers": true,
+        "polyfill": false,
+        "regenerator": false
+      }]],
       runtimeHelpers: true
     })
   ]
