@@ -20,6 +20,7 @@
     "rollup-plugin-local-resolve": "^1.0.7"
   },
   "scripts": {
+    "build": "rollup -c -m -i src/StateMachine.js -o index.js && rollup -c -m -i src/compile.js -o compile.js",
     "test": "mocha --require babel-register --require babel-polyfill",
     "prepublish": "make"
   },
