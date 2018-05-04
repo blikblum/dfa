@@ -13,57 +13,56 @@ export default class StateMachine {
   }
 
   /**
-   * Returns an iterable object that yields pattern matches over the input sequence.
+   * Returns an array with matches over the input sequence.
    * Matches are of the form [startIndex, endIndex, tags].
    */
   match(str) {
-    let self = this;
-    return {
-      *[Symbol.iterator]() {
-        let state = INITIAL_STATE;
-        let startRun = null;
-        let lastAccepting = null;
-        let lastState = null;
+    let result = [];
 
-        for (let p = 0; p < str.length; p++) {
-          let c = str[p];
+    let state = INITIAL_STATE;
+    let startRun = null;
+    let lastAccepting = null;
+    let lastState = null;
 
-          lastState = state;
-          state = self.stateTable[state][c];
+    for (let p = 0; p < str.length; p++) {
+      let c = str[p];
 
-          if (state === FAIL_STATE) {
-            // yield the last match if any
-            if (startRun != null && lastAccepting != null && lastAccepting >= startRun) {
-              yield [startRun, lastAccepting, self.tags[lastState]];
-            }
+      lastState = state;
+      state = this.stateTable[state][c];
 
-            // reset the state as if we started over from the initial state
-            state = self.stateTable[INITIAL_STATE][c];
-            startRun = null;
-          }
-
-          // start a run if not in the failure state
-          if (state !== FAIL_STATE && startRun == null) {
-            startRun = p;
-          }
-
-          // if accepting, mark the potential match end
-          if (self.accepting[state]) {
-            lastAccepting = p;
-          }
-
-          // reset the state to the initial state if we get into the failure state
-          if (state === FAIL_STATE) {
-            state = INITIAL_STATE;
-          }
-        }
-
+      if (state === FAIL_STATE) {
         // yield the last match if any
         if (startRun != null && lastAccepting != null && lastAccepting >= startRun) {
-          yield [startRun, lastAccepting, self.tags[state]];
+          result.push([startRun, lastAccepting, this.tags[lastState]]);
         }
+
+        // reset the state as if we started over from the initial state
+        state = this.stateTable[INITIAL_STATE][c];
+        startRun = null;
       }
-    };
+
+      // start a run if not in the failure state
+      if (state !== FAIL_STATE && startRun == null) {
+        startRun = p;
+      }
+
+      // if accepting, mark the potential match end
+      if (this.accepting[state]) {
+        lastAccepting = p;
+      }
+
+      // reset the state to the initial state if we get into the failure state
+      if (state === FAIL_STATE) {
+        state = INITIAL_STATE;
+      }
+    }
+
+    // yield the last match if any
+    if (startRun != null && lastAccepting != null && lastAccepting >= startRun) {
+      result.push([startRun, lastAccepting, this.tags[state]]);
+    }
+
+    return result;
   }
 
   /**
