@@ -71,8 +71,11 @@ export default class StateMachine {
    * endIndex, and sub-match sequence.
    */
   apply(str, actions) {
-    for (let [start, end, tags] of this.match(str)) {
-      for (let tag of tags) {
+    let matches = this.match(str);
+    for (let i = 0; i < matches.length; i++) {
+      let [start, end, tags] = matches[i];
+      for (let j = 0; j < tags.length; j++) {
+        let tag = tags[j];
         if (typeof actions[tag] === 'function') {
           actions[tag](start, end, str.slice(start, end + 1));
         }
